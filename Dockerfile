@@ -16,13 +16,15 @@ RUN git clone https://github.com/chobie/php-protocolbuffers.git
 
 #add basic config #TODO update to be generic
 WORKDIR /repo/SOLAS-Match
+RUN git checkout docker
 RUN cp Common/conf/conf.template.ini Common/conf/conf.ini
 RUN chmod a+rw /repo/SOLAS-Match/Common/conf/conf.ini
-RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini site location http://192.168.1.50/
-RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini site api http://192.168.1.50/api/
+RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini site location http://ubuntu64/
+RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini site api http://127.0.0.1/api/
 RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini database server "127.0.0.1"
 RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini database username "tester"
 RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini database password "tester"
+RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini files upload_path "'uploads/'"
 
 #install composer dependecies
 WORKDIR /repo/SOLAS-Match/ui
@@ -41,6 +43,16 @@ RUN echo "browscap = /etc/php5/apache2/php_browscap.ini"  >>  /etc/php5/apache2/
 RUN wget http://browscap.org/stream?q=PHP_BrowsCapINI -O /etc/php5/apache2/php_browscap.ini
 RUN wget https://raw.githubusercontent.com/nathansmith/960-Grid-System/master/code/css/960.css -O  /repo/SOLAS-Match/resources/css/960.css
 RUN sed  -e "s/AllowOverride.*/AllowOverride All/g" -i /etc/apache2/apache2.conf
+
+#install RabbitMQ (SOLAS-Match gives error if it is not running, even if C++ back end if not running)
+#First remove any existing old installation
+RUN apt-get remove rabbitmq-server -y
+WORKDIR /repo
+RUN wget https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+RUN apt-key add rabbitmq-signing-key-public.asc
+RUN echo "deb http://www.rabbitmq.com/debian/ testing main" >> /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install rabbitmq-server -y
 
 #create sysmlinks and direcorties.
 RUN sudo ln -s /repo/SOLAS-Match/* /var/www/
@@ -63,8 +75,11 @@ RUN service mysql start &&  mysql -h 127.0.0.1 -P 3306 -u root -e "GRANT ALL ON 
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < api/vendor/league/oauth2-server/sql/mysql.sql
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema.sql
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/languages.sql
-RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/country_codes.sql
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root --default-character-set=utf8 SolasMatch < db/country_codes.sql
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO Users VALUES (1,'test','test@example.com','9deddc83b2f3f6f439d5afbe3128772e55fc4e7b36a01b8b5012fb9de13a601491d2ec5cc36e2e5956ec816eaa81a13cbc5f9ae33a4fd740e2c03260e2897a01',NULL,NULL,NULL,2069805492,'2015-03-15 01:16:16');"
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO UserPersonalInformation (user_id, `language-preference`) VALUES (1, 1785);"
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO oauth_clients (id, secret, name, auto_approve) VALUES('yub78q7gabcku73FK47A4AIFK7GAK7UGFAK4', 'sfvg7gir74bi7ybawQFNJUMSDCPOPi7u238OH88rfi', 'trommons', 1);"
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO oauth_client_endpoints (client_id, redirect_uri) VALUES ('yub78q7gabcku73FK47A4AIFK7GAK7UGFAK4', 'http://ubuntu64/login/');"
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e " insert into SolasMatch.Admins (user_id) values (1);"
 
 #expose webeserver port
