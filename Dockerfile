@@ -45,17 +45,7 @@ RUN wget http://browscap.org/stream?q=PHP_BrowsCapINI -O /etc/php5/apache2/php_b
 RUN wget https://raw.githubusercontent.com/nathansmith/960-Grid-System/master/code/css/960.css -O  /repo/SOLAS-Match/resources/css/960.css
 RUN sed  -e "s/AllowOverride.*/AllowOverride All/g" -i /etc/apache2/apache2.conf
 
-# Install RabbitMQ (SOLAS-Match gives error if it is not running, even if C++ back end if not running)
-# First remove any existing old installation
-RUN apt-get remove rabbitmq-server -y
-WORKDIR /repo
-RUN wget https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
-RUN apt-key add rabbitmq-signing-key-public.asc
-RUN echo "deb http://www.rabbitmq.com/debian/ testing main" >> /etc/apt/sources.list
-RUN apt-get update
-RUN apt-get install rabbitmq-server -y
-
-# Create sysmlinks and directories
+# Create symlinks and directories
 RUN sudo ln -s /repo/SOLAS-Match/* /var/www/
 RUN chown -R  www-data:www-data /repo
 RUN mkdir -p  /repo/SOLAS-Match/uploads -m 777
@@ -83,6 +73,29 @@ RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO
 #TODO update ubuntu64 to be generic
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO oauth_client_endpoints (client_id, redirect_uri) VALUES ('yub78q7gabcku73FK47A4AIFK7GAK7UGFAK4', 'http://ubuntu64/login/');"
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e " insert into SolasMatch.Admins (user_id) values (1);"
+
+# Install RabbitMQ (SOLAS-Match gives error if it is not running, even if C++ back end if not running)
+
+# upstart (initctl) will not work, but init should start RabbitMQ later
+# So make initctl return true
+# Note there are other upstart errors before this point, but they do not stop the build
+# https://github.com/docker/docker/issues/1024
+# https://www.nesono.com/node/368
+RUN dpkg-divert --local --rename --add /sbin/initctl
+RUN ln -s /bin/true /sbin/initctl
+
+# First remove any existing old installation
+RUN apt-get remove rabbitmq-server -y
+WORKDIR /repo
+RUN wget https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+RUN apt-key add rabbitmq-signing-key-public.asc
+RUN echo "deb http://www.rabbitmq.com/debian/ testing main" >> /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install rabbitmq-server -y
+
+# Replace initctl
+RUN unlink /sbin/initctl
+RUN dpkg-divert --rename --remove /sbin/initctl
 
 # Expose web server port
 EXPOSE 80
