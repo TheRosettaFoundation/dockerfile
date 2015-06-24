@@ -1,7 +1,7 @@
 # dockerfile
 Dockerfile and associated files for SOLAS-Match
 
-This Dockerfile create an image for The Rosetta Foundation's (http://www.therosettafoundation.org/) Translation Commons (http://trommons.org/)
+This Dockerfile creates an image for The Rosetta Foundation's (http://www.therosettafoundation.org/) Translation Commons (http://trommons.org/)
 
 It so far supports the Web Application "SOLAS-Match", not the C++ back end which sends e-mails etc.
 
@@ -25,16 +25,18 @@ sudo usermod -aG docker YOUR_UNIX_USER_NAME
 
 * "sudo docker ps" should now show your running Docker container with a name of "solas"
 
-* "sudo docker exec -i -t solas bash" will open a bash shell inside tech container
+* "sudo docker exec -i -t solas bash" will open a bash shell inside the container
 
-* If you did not use the name "ubuntu64" for your VM, issue tech following command (replacing "ubuntu64" with your actual hostname)<br />
+* If you did not use the name "ubuntu64" for your VM, issue the following commands (replacing "ubuntu64" with your actual hostname)<br />
 export TERM=dumb<br />
 crudini --set /repo/SOLAS-Match/Common/conf/conf.ini site location http://ubuntu64/<br />
 mysql -h 127.0.0.1 -P 3306 SolasMatch -e "UPDATE oauth_client_endpoints SET redirect_uri='http://ubuntu64/login/' WHERE client_id='yub78q7gabcku73FK47A4AIFK7GAK7UGFAK4';"
 
-* You should now be able to got to "http://ubuntu64" in your browser and Trommons will come up and should function
+* You should now be able to browse to "http://ubuntu64" in your browser and Trommons will come up and should function
 
 * There is a user called "test@example.com" with a password of "test"
+
+* Issue "exit" to exit the shell (if desired)
 
 * Issue "sudo docker stop solas" to stop the container
 
