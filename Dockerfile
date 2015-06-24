@@ -1,6 +1,8 @@
 FROM ubuntu-upstart
 MAINTAINER Alan Barrett <alanabarrett0@gmail.com>
 
+ENV TERM dumb
+
 # Install apache and php
 RUN apt-get update && apt-get install git wget apache2 php5 libapache2-mod-php5 curl crudini nano -y
 RUN a2enmod rewrite
