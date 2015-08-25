@@ -99,6 +99,104 @@ RUN apt-get install rabbitmq-server -y
 RUN unlink /sbin/initctl
 RUN dpkg-divert --rename --remove /sbin/initctl
 
+
+# Backend C++ Application Prerequisites
+
+RUN apt-get install build-essential libmysqlclient-dev -y
+RUN apt-get install build-dep qt5-default -y
+RUN apt-get install qt5-qmake -y
+
+WORKDIR /repo
+RUN mkdir -p  /repo/dependencies -m 777
+RUN chmod 777 /repo/dependencies
+
+# Install rabbitmq-c (C Library for RabbitMQ)
+RUN apt-get install cmake -y
+WORKDIR /repo
+RUN wget https://github.com/alanxz/rabbitmq-c/archive/v0.7.0.tar.gz
+RUN gunzip v0.7.0.tar.gz
+RUN tar xvf v0.7.0.tar
+RUN mv rabbitmq-c-0.7.0 /repo/dependencies/rabbitmq-c
+WORKDIR /repo/dependencies/rabbitmq-c/librabbitmq
+RUN cmake ..
+RUN cmake --build .
+RUN cmake --build . --target install
+
+# Install amqpcpp (C++ Library for rabbitmq-c for RabbitMQ)
+WORKDIR /repo/dependencies
+RUN git clone https://github.com/TheRosettaFoundation/amqpcpp.git
+WORKDIR /repo/dependencies/amqpcpp
+RUN make
+WORKDIR /repo/dependencies/amqpcpp
+RUN cp -p libamqpcpp.so /usr/local/lib/
+RUN chown root:root /usr/local/lib/libamqpcpp.so
+RUN cp -p libamqpcpp.a /usr/local/lib/
+RUN chown root:root /usr/local/lib/libamqpcpp.a
+RUN cp -p include/AMQPcpp.h /usr/local/include/
+RUN chown root:root /usr/local/include/AMQPcpp.h
+
+# Template Library
+WORKDIR /repo/dependencies
+sudo apt-get install libctemplate-dev
+
+# Backend C++ Application
+WORKDIR /repo
+RUN git clone https://github.com/TheRosettaFoundation/SOLAS-Match-Backend.git
+WORKDIR /repo/SOLAS-Match-Backend
+RUN git checkout qt5
+RUN git pull origin qt5
+
+# Links
+WORKDIR /etc
+RUN mkdir -p  /etc/SOLAS-Match -m 777
+RUN chmod 777 /etc/SOLAS-Match
+WORKDIR /etc/SOLAS-Match
+RUN ln -s /repo/SOLAS-Match-Backend/templates/ templates
+RUN ln -s /repo/SOLAS-Match-Backend/schedule.xml schedule.xml
+
+# Configuration for Backend
+WORKDIR /repo/SOLAS-Match-Backend
+RUN cp conf.template.ini conf.ini
+RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini database username "tester"
+RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini database password "tester"
+
+RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini mail server '"localhost"'
+RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini mail password '""'
+RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini mail user '""'
+RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini mail admin_emails '"alanabarrett0@gmail.com"'
+
+RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site url http://ubuntu64/
+RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site system_email_address "'alanabarrett0@gmail.com'"
+RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site notifications_monitor_email_address "'alanabarrett0@gmail.com'"
+RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site log '"/etc/SOLAS-Match/output.log"'
+RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site max_threads 15
+
+RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini email-footer donate_link '"http://www.therosettafoundation.org/donate/"'
+
+WORKDIR /etc/SOLAS-Match
+RUN ln -s /repo/SOLAS-Match-Backend/conf.ini conf.ini
+
+# Schedule (speeded up) for Backend
+WORKDIR /repo/SOLAS-Match-Backend
+RUN cp -p schedule.xml schedule.xml.git
+COPY schedule.xml /repo/SOLAS-Match-Backend/schedule.xml
+
+# Compile Backend C++ Application
+WORKDIR  /repo/SOLAS-Match-Backend
+RUN qmake
+RUN make
+
+# Links in PluginHandler/
+WORKDIR /repo/SOLAS-Match-Backend/PluginHandler
+RUN ln -s /repo/SOLAS-Match-Backend/conf.ini conf.ini
+RUN ln -s /repo/SOLAS-Match-Backend/schedule.xml schedule.xml
+RUN ln -s /repo/SOLAS-Match-Backend/templates templates
+
+# Script to run Backend C++ Application
+WORKDIR /repo/SOLAS-Match-Backend
+COPY run_daemon.sh /repo/SOLAS-Match-Backend/run_daemon.sh
+RUN chmod 755 run_daemon.sh
+
 # Expose web server port
 EXPOSE 80
 CMD ["/sbin/init"]
