@@ -103,7 +103,7 @@ RUN dpkg-divert --rename --remove /sbin/initctl
 # Backend C++ Application Prerequisites
 
 RUN apt-get install build-essential libmysqlclient-dev -y
-RUN apt-get install build-dep qt5-default -y
+RUN apt-get build-dep qt5-default -y
 RUN apt-get install qt5-qmake -y
 
 WORKDIR /repo
