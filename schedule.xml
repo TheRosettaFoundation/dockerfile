@@ -1,0 +1,26 @@
+<tasks>
+    <task startTime="12:15">
+        <interval days="0" hours="0" mins="1" secs="13"></interval>
+        <message exchange="SOLAS_MATCH" topic="tasks.score">
+            UserTaskScoreRequest
+        </message>
+    </task>
+    <task startTime="07:05">
+        <interval days="0" hours="0" mins="1" secs="17"></interval>
+        <message exchange="SOLAS_MATCH" topic="tasks.deadline.check">
+            DeadlineCheckRequest
+        </message>
+    </task>
+    <task startTime="09:00">
+        <interval days="0" hours="0" mins="1" secs="19"></interval>
+        <message exchange="SOLAS_MATCH" topic="users.statistics.update">
+            StatisticsUpdateRequest
+        </message>
+    </task>
+    <task startTime="08:10">       
+        <interval days="0" hours="0" mins="1" secs="23"></interval>
+        <message exchange="SOLAS_MATCH" topic="users.stream.notify">
+            UserTaskStreamNotificationRequest
+        </message>
+    </task>
+</tasks>
