@@ -103,17 +103,16 @@ RUN dpkg-divert --rename --remove /sbin/initctl
 
 # Backend C++ Application Prerequisites
 
-RUN apt-get install build-essential libmysqlclient-dev -y
+WORKDIR /repo/dependencies
+RUN apt-get install build-essential libmysqlclient-dev cmake libctemplate-dev -y
 RUN apt-get build-dep qt5-default -y
-RUN apt-get install qt5-default -y
-RUN apt-get install qt5-qmake -y
+RUN apt-get install qt5-default qt5-qmake -y
 
 WORKDIR /repo
 RUN mkdir -p  /repo/dependencies -m 777
 # RUN chmod 777 /repo/dependencies
 
 # Install rabbitmq-c (C Library for RabbitMQ)
-RUN apt-get install cmake -y
 WORKDIR /repo
 RUN wget https://github.com/alanxz/rabbitmq-c/archive/v0.7.0.tar.gz
 RUN gunzip v0.7.0.tar.gz
@@ -134,10 +133,6 @@ RUN cp -p libamqpcpp.so libamqpcpp.a /usr/local/lib/
 RUN chown root:root /usr/local/lib/libamqpcpp.so /usr/local/lib/libamqpcpp.a
 RUN cp -p include/AMQPcpp.h /usr/local/include/
 RUN chown root:root /usr/local/include/AMQPcpp.h
-
-# Template Library
-WORKDIR /repo/dependencies
-RUN apt-get install libctemplate-dev -y
 
 # Backend C++ Application
 WORKDIR /repo
