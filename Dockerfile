@@ -138,7 +138,7 @@ RUN chown root:root /usr/local/include/AMQPcpp.h
 
 # Template Library
 WORKDIR /repo/dependencies
-sudo apt-get install libctemplate-dev
+RUN apt-get install libctemplate-dev
 
 # Backend C++ Application
 WORKDIR /repo
