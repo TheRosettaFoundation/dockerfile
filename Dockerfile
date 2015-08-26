@@ -139,7 +139,6 @@ WORKDIR /repo
 RUN git clone https://github.com/TheRosettaFoundation/SOLAS-Match-Backend.git
 WORKDIR /repo/SOLAS-Match-Backend
 RUN git checkout qt5
-RUN git pull origin qt5
 
 # Configuration for Backend
 
