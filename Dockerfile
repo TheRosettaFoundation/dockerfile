@@ -138,7 +138,7 @@ RUN chown root:root /usr/local/include/AMQPcpp.h
 WORKDIR /repo
 RUN git clone https://github.com/TheRosettaFoundation/SOLAS-Match-Backend.git
 WORKDIR /repo/SOLAS-Match-Backend
-RUN git checkout qt5
+RUN git checkout qt521
 
 # Configuration for Backend
 
