@@ -20,14 +20,15 @@ RUN git clone https://github.com/chobie/php-protocolbuffers.git
 # Add basic config #TODO update ubuntu64 to be generic
 WORKDIR /repo/SOLAS-Match
 RUN git checkout docker
-RUN cp Common/conf/conf.template.ini Common/conf/conf.ini
-RUN chmod a+rw /repo/SOLAS-Match/Common/conf/conf.ini
-RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini site location http://ubuntu64/
-RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini site api http://127.0.0.1/api/
-RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini database server "127.0.0.1"
-RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini database username "tester"
-RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini database password "tester"
-RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini files upload_path "'uploads/'"
+COPY conf.template.ini /repo/SOLAS-Match/Common/conf/conf.ini
+# RUN cp Common/conf/conf.template.ini Common/conf/conf.ini
+# RUN chmod a+rw /repo/SOLAS-Match/Common/conf/conf.ini
+# RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini site location http://ubuntu64/
+# RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini site api http://127.0.0.1/api/
+# RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini database server "127.0.0.1"
+# RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini database username "tester"
+# RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini database password "tester"
+# RUN crudini --set /repo/SOLAS-Match/Common/conf/conf.ini files upload_path "'uploads/'"
 
 # Install composer dependencies
 WORKDIR /repo/SOLAS-Match/ui
@@ -45,7 +46,7 @@ RUN echo "[browscap]"  >>  /etc/php5/apache2/php.ini     >>  /etc/php5/apache2/p
 RUN echo "browscap = /etc/php5/apache2/php_browscap.ini"  >>  /etc/php5/apache2/php.ini    
 RUN wget http://browscap.org/stream?q=PHP_BrowsCapINI -O /etc/php5/apache2/php_browscap.ini
 RUN wget https://raw.githubusercontent.com/nathansmith/960-Grid-System/master/code/css/960.css -O  /repo/SOLAS-Match/resources/css/960.css
-RUN sed  -e "s/AllowOverride.*/AllowOverride All/g" -i /etc/apache2/apache2.conf
+# RUN sed -e "s/AllowOverride.*/AllowOverride All/g" -i /etc/apache2/apache2.conf
 
 # Create symlinks and directories
 RUN sudo ln -s /repo/SOLAS-Match/* /var/www/
@@ -109,7 +110,7 @@ RUN apt-get install qt5-qmake -y
 
 WORKDIR /repo
 RUN mkdir -p  /repo/dependencies -m 777
-RUN chmod 777 /repo/dependencies
+# RUN chmod 777 /repo/dependencies
 
 # Install rabbitmq-c (C Library for RabbitMQ)
 RUN apt-get install cmake -y
@@ -129,10 +130,8 @@ RUN git clone https://github.com/TheRosettaFoundation/amqpcpp.git
 WORKDIR /repo/dependencies/amqpcpp
 RUN make
 WORKDIR /repo/dependencies/amqpcpp
-RUN cp -p libamqpcpp.so /usr/local/lib/
-RUN chown root:root /usr/local/lib/libamqpcpp.so
-RUN cp -p libamqpcpp.a /usr/local/lib/
-RUN chown root:root /usr/local/lib/libamqpcpp.a
+RUN cp -p libamqpcpp.so libamqpcpp.a /usr/local/lib/
+RUN chown root:root /usr/local/lib/libamqpcpp.so /usr/local/lib/libamqpcpp.a
 RUN cp -p include/AMQPcpp.h /usr/local/include/
 RUN chown root:root /usr/local/include/AMQPcpp.h
 
@@ -147,40 +146,44 @@ WORKDIR /repo/SOLAS-Match-Backend
 RUN git checkout qt5
 RUN git pull origin qt5
 
+# Configuration for Backend
+
+COPY conf.ini schedule.xml run_daemon.sh /repo/SOLAS-Match-Backend/
+
+# WORKDIR /repo/SOLAS-Match-Backend
+# RUN cp conf.template.ini conf.ini
+# RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini database username "tester"
+# RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini database password "tester"
+
+# RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini mail server '"localhost"'
+# RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini mail password '""'
+# RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini mail user '""'
+# RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini mail admin_emails '"alanabarrett0@gmail.com"'
+
+# RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site url http://ubuntu64/
+# RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site system_email_address "'alanabarrett0@gmail.com'"
+# RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site notifications_monitor_email_address "'alanabarrett0@gmail.com'"
+# RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site log '"/etc/SOLAS-Match/output.log"'
+# RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site max_threads 15
+
+# RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini email-footer donate_link '"http://www.therosettafoundation.org/donate/"'
+
+# Schedule (speeded up) for Backend
+# WORKDIR /repo/SOLAS-Match-Backend
+# RUN cp -p schedule.xml schedule.xml.git
+# COPY schedule.xml /repo/SOLAS-Match-Backend/schedule.xml
+
+# Script to run Backend C++ Application
+WORKDIR /repo/SOLAS-Match-Backend
+RUN chmod 755 run_daemon.sh
+
 # Links
 WORKDIR /etc
-RUN mkdir -p  /etc/SOLAS-Match -m 777
-RUN chmod 777 /etc/SOLAS-Match
+RUN mkdir -p /etc/SOLAS-Match -m 777
 WORKDIR /etc/SOLAS-Match
 RUN ln -s /repo/SOLAS-Match-Backend/templates/ templates
 RUN ln -s /repo/SOLAS-Match-Backend/schedule.xml schedule.xml
-
-# Configuration for Backend
-WORKDIR /repo/SOLAS-Match-Backend
-RUN cp conf.template.ini conf.ini
-RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini database username "tester"
-RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini database password "tester"
-
-RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini mail server '"localhost"'
-RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini mail password '""'
-RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini mail user '""'
-RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini mail admin_emails '"alanabarrett0@gmail.com"'
-
-RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site url http://ubuntu64/
-RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site system_email_address "'alanabarrett0@gmail.com'"
-RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site notifications_monitor_email_address "'alanabarrett0@gmail.com'"
-RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site log '"/etc/SOLAS-Match/output.log"'
-RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site max_threads 15
-
-RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini email-footer donate_link '"http://www.therosettafoundation.org/donate/"'
-
-WORKDIR /etc/SOLAS-Match
 RUN ln -s /repo/SOLAS-Match-Backend/conf.ini conf.ini
-
-# Schedule (speeded up) for Backend
-WORKDIR /repo/SOLAS-Match-Backend
-RUN cp -p schedule.xml schedule.xml.git
-COPY schedule.xml /repo/SOLAS-Match-Backend/schedule.xml
 
 # Compile Backend C++ Application
 WORKDIR  /repo/SOLAS-Match-Backend
@@ -192,11 +195,6 @@ WORKDIR /repo/SOLAS-Match-Backend/PluginHandler
 RUN ln -s /repo/SOLAS-Match-Backend/conf.ini conf.ini
 RUN ln -s /repo/SOLAS-Match-Backend/schedule.xml schedule.xml
 RUN ln -s /repo/SOLAS-Match-Backend/templates templates
-
-# Script to run Backend C++ Application
-WORKDIR /repo/SOLAS-Match-Backend
-COPY run_daemon.sh /repo/SOLAS-Match-Backend/run_daemon.sh
-RUN chmod 755 run_daemon.sh
 
 # Expose web server port
 EXPOSE 80
