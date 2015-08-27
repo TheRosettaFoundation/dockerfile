@@ -113,7 +113,7 @@ RUN dpkg-divert --rename --remove /sbin/initctl
 WORKDIR /repo/dependencies
 RUN apt-get install build-essential libmysqlclient-dev cmake libctemplate-dev -y
 RUN apt-get build-dep qt5-default -y
-RUN apt-get install qt5-default qt5-qmake -y
+RUN apt-get install qt5-default qt5-qmake libqt5sql5-mysql -y
 
 WORKDIR /repo
 RUN mkdir -p  /repo/dependencies -m 777
