@@ -74,11 +74,7 @@ RUN ./init_database.sh
 #RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "CREATE USER 'tester'@'%.%.%.%' identified by 'tester';"
 #RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "GRANT ALL ON SolasMatch.* TO 'tester'@'%.%.%.%';"
 #RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < api/vendor/league/oauth2-server/sql/mysql.sql
-## RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema.sql
-#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema_tables0.sql
-#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema_tables.sql
-#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema_procedures.sql
-#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema_triggers.sql
+#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema.sql
 #RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/languages.sql
 #RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root --default-character-set=utf8 SolasMatch < db/country_codes.sql
 #RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO Users VALUES (1,'test','test@example.com','9deddc83b2f3f6f439d5afbe3128772e55fc4e7b36a01b8b5012fb9de13a601491d2ec5cc36e2e5956ec816eaa81a13cbc5f9ae33a4fd740e2c03260e2897a01',NULL,NULL,NULL,2069805492,'2015-03-15 01:16:16');"
@@ -150,8 +146,9 @@ WORKDIR /repo
 RUN git clone https://github.com/TheRosettaFoundation/SOLAS-Match-Backend.git
 WORKDIR /repo/SOLAS-Match-Backend
 # QT 5.21(<5.5) does not support QtInfoMsg so we need branch qt521
-# QT 5.21 is provided by Ubuntu 14.04 (from ubuntu-upstart) in qt5-default; If we had QT5.5 we would need to "RUN git checkout qt5"
+# QT 5.21 is provided by Ubuntu 14.04 (from ubuntu-upstart) in qt5-default; If we had QT5.5 we would need to "RUN git checkout qt5/RUN git pull origin qt5"
 RUN git checkout qt521
+RUN git pull origin qt521
 
 # Configuration for Backend
 
