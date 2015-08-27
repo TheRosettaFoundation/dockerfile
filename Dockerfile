@@ -16,6 +16,26 @@ RUN mkdir /repo -m 777
 WORKDIR /repo
 RUN git clone https://github.com/TheRosettaFoundation/SOLAS-Match.git
 RUN git clone https://github.com/chobie/php-protocolbuffers.git
+#[[DEBUG
+RUN apt-get install mysql-server mysql-client -y && sysv-rc-conf mysql on && sysv-rc-conf --list mysql
+RUN sed -e "s/bind-address            = 127.0.0.1/bind-address            = 0.0.0.0/g" -i /etc/mysql/my.cnf
+RUN service mysql start
+
+WORKDIR /repo/SOLAS-Match/
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "create database SolasMatch;"
+RUN service mysql start &&  mysql -h 127.0.0.1 -P 3306 -u root -e "CREATE USER 'tester'@'%.%.%.%' identified by 'tester';"
+RUN service mysql start &&  mysql -h 127.0.0.1 -P 3306 -u root -e "GRANT ALL ON SolasMatch.* TO 'tester'@'%.%.%.%';"
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < api/vendor/league/oauth2-server/sql/mysql.sql
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema.sql
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/languages.sql
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root --default-character-set=utf8 SolasMatch < db/country_codes.sql
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO Users VALUES (1,'test','test@example.com','9deddc83b2f3f6f439d5afbe3128772e55fc4e7b36a01b8b5012fb9de13a601491d2ec5cc36e2e5956ec816eaa81a13cbc5f9ae33a4fd740e2c03260e2897a01',NULL,NULL,NULL,2069805492,'2015-03-15 01:16:16');"
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO UserPersonalInformation VALUES (1, 1, NULL, NULL, NULL, NULL, 1785, NULL, NULL, NULL, NULL, 0);"
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO oauth_clients (id, secret, name, auto_approve) VALUES('yub78q7gabcku73FK47A4AIFK7GAK7UGFAK4', 'sfvg7gir74bi7ybawQFNJUMSDCPOPi7u238OH88rfi', 'trommons', 1);"
+#TODO update ubuntu64 to be generic
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO oauth_client_endpoints (client_id, redirect_uri) VALUES ('yub78q7gabcku73FK47A4AIFK7GAK7UGFAK4', 'http://ubuntu64/login/');"
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e " insert into SolasMatch.Admins (user_id) values (1);"
+#]]DEBUG
 
 # Add basic config #TODO update ubuntu64 to be generic
 WORKDIR /repo/SOLAS-Match
@@ -58,24 +78,24 @@ RUN chmod 777 /repo/SOLAS-Match/uploads
 RUN chmod 777 /repo/SOLAS-Match/ui/templating/templates_compiled
 RUN chmod 777 /repo/SOLAS-Match/ui/templating/cache
 
-RUN apt-get install mysql-server mysql-client -y && sysv-rc-conf mysql on && sysv-rc-conf --list mysql
-RUN sed -e "s/bind-address            = 127.0.0.1/bind-address            = 0.0.0.0/g" -i /etc/mysql/my.cnf
-RUN service mysql start
+#RUN apt-get install mysql-server mysql-client -y && sysv-rc-conf mysql on && sysv-rc-conf --list mysql
+#RUN sed -e "s/bind-address            = 127.0.0.1/bind-address            = 0.0.0.0/g" -i /etc/mysql/my.cnf
+#RUN service mysql start
 
-WORKDIR /repo/SOLAS-Match/
-RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "create database SolasMatch;"
-RUN service mysql start &&  mysql -h 127.0.0.1 -P 3306 -u root -e "CREATE USER 'tester'@'%.%.%.%' identified by 'tester';"
-RUN service mysql start &&  mysql -h 127.0.0.1 -P 3306 -u root -e "GRANT ALL ON SolasMatch.* TO 'tester'@'%.%.%.%';"
-RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < api/vendor/league/oauth2-server/sql/mysql.sql
-RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema.sql
-RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/languages.sql
-RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root --default-character-set=utf8 SolasMatch < db/country_codes.sql
-RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO Users VALUES (1,'test','test@example.com','9deddc83b2f3f6f439d5afbe3128772e55fc4e7b36a01b8b5012fb9de13a601491d2ec5cc36e2e5956ec816eaa81a13cbc5f9ae33a4fd740e2c03260e2897a01',NULL,NULL,NULL,2069805492,'2015-03-15 01:16:16');"
-RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO UserPersonalInformation VALUES (1, 1, NULL, NULL, NULL, NULL, 1785, NULL, NULL, NULL, NULL, 0);"
-RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO oauth_clients (id, secret, name, auto_approve) VALUES('yub78q7gabcku73FK47A4AIFK7GAK7UGFAK4', 'sfvg7gir74bi7ybawQFNJUMSDCPOPi7u238OH88rfi', 'trommons', 1);"
-#TODO update ubuntu64 to be generic
-RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO oauth_client_endpoints (client_id, redirect_uri) VALUES ('yub78q7gabcku73FK47A4AIFK7GAK7UGFAK4', 'http://ubuntu64/login/');"
-RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e " insert into SolasMatch.Admins (user_id) values (1);"
+#WORKDIR /repo/SOLAS-Match/
+#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "create database SolasMatch;"
+#RUN service mysql start &&  mysql -h 127.0.0.1 -P 3306 -u root -e "CREATE USER 'tester'@'%.%.%.%' identified by 'tester';"
+#RUN service mysql start &&  mysql -h 127.0.0.1 -P 3306 -u root -e "GRANT ALL ON SolasMatch.* TO 'tester'@'%.%.%.%';"
+#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < api/vendor/league/oauth2-server/sql/mysql.sql
+#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema.sql
+#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/languages.sql
+#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root --default-character-set=utf8 SolasMatch < db/country_codes.sql
+#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO Users VALUES (1,'test','test@example.com','9deddc83b2f3f6f439d5afbe3128772e55fc4e7b36a01b8b5012fb9de13a601491d2ec5cc36e2e5956ec816eaa81a13cbc5f9ae33a4fd740e2c03260e2897a01',NULL,NULL,NULL,2069805492,'2015-03-15 01:16:16');"
+#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO UserPersonalInformation VALUES (1, 1, NULL, NULL, NULL, NULL, 1785, NULL, NULL, NULL, NULL, 0);"
+#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO oauth_clients (id, secret, name, auto_approve) VALUES('yub78q7gabcku73FK47A4AIFK7GAK7UGFAK4', 'sfvg7gir74bi7ybawQFNJUMSDCPOPi7u238OH88rfi', 'trommons', 1);"
+##TODO update ubuntu64 to be generic
+#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e "INSERT INTO oauth_client_endpoints (client_id, redirect_uri) VALUES ('yub78q7gabcku73FK47A4AIFK7GAK7UGFAK4', 'http://ubuntu64/login/');"
+#RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e " insert into SolasMatch.Admins (user_id) values (1);"
 
 # Install RabbitMQ (SOLAS-Match gives error if it is not running, even if C++ back end if not running)
 
