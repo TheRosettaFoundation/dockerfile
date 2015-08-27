@@ -138,6 +138,8 @@ RUN chown root:root /usr/local/include/AMQPcpp.h
 WORKDIR /repo
 RUN git clone https://github.com/TheRosettaFoundation/SOLAS-Match-Backend.git
 WORKDIR /repo/SOLAS-Match-Backend
+# QT 5.21(<5.5) does not support QtInfoMsg so we need branch qt521
+# QT 5.21 is provided by Ubuntu 14.04 (from ubuntu-upstart) in qt5-default; If we had QT5.5 we would need to "RUN git checkout qt5"
 RUN git checkout qt521
 
 # Configuration for Backend
@@ -154,6 +156,7 @@ COPY conf.ini schedule.xml run_daemon.sh /repo/SOLAS-Match-Backend/
 # RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini mail user '""'
 # RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini mail admin_emails '"alanabarrett0@gmail.com"'
 
+# Add basic config #TODO update ubuntu64 to be generic
 # RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site url http://ubuntu64/
 # RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site system_email_address "'alanabarrett0@gmail.com'"
 # RUN crudini --set /repo/SOLAS-Match-Backend/conf.ini site notifications_monitor_email_address "'alanabarrett0@gmail.com'"
