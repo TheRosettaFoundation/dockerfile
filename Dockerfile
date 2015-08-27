@@ -23,7 +23,7 @@ RUN apt-get install mysql-server mysql-client -y && sysv-rc-conf mysql on && sys
 RUN sed -e "s/bind-address            = 127.0.0.1/bind-address            = 0.0.0.0/g" -i /etc/mysql/my.cnf
 RUN service mysql start
 
-WORKDIR /repo/SOLAS-Match
+WORKDIR /repo/SOLAS-Match/
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "create database SolasMatch;"
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "CREATE USER 'tester'@'%.%.%.%' identified by 'tester';"
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "GRANT ALL ON SolasMatch.* TO 'tester'@'%.%.%.%';"
@@ -83,7 +83,7 @@ RUN chmod 777 /repo/SOLAS-Match/ui/templating/cache
 #RUN sed -e "s/bind-address            = 127.0.0.1/bind-address            = 0.0.0.0/g" -i /etc/mysql/my.cnf
 #RUN service mysql start
 
-#WORKDIR /repo/SOLAS-Match
+#WORKDIR /repo/SOLAS-Match/
 #RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "create database SolasMatch;"
 #RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "CREATE USER 'tester'@'%.%.%.%' identified by 'tester';"
 #RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "GRANT ALL ON SolasMatch.* TO 'tester'@'%.%.%.%';"
