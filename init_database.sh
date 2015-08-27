@@ -1,5 +1,6 @@
 cd /repo/SOLAS-Match/
 service mysql start
+sleep 5
 mysql -h 127.0.0.1 -P 3306 -u root -e "create database SolasMatch;"
 mysql -h 127.0.0.1 -P 3306 -u root -e "CREATE USER 'tester'@'%.%.%.%' identified by 'tester';"
 mysql -h 127.0.0.1 -P 3306 -u root -e "GRANT ALL ON SolasMatch.* TO 'tester'@'%.%.%.%';"
