@@ -3,10 +3,10 @@ Dockerfile and associated files for SOLAS-Match
 
 This Dockerfile creates an image for The Rosetta Foundation's (http://www.therosettafoundation.org/) Translation Commons (http://trommons.org/)
 
-It so far supports the Web Application "SOLAS-Match", not the C++ back end which sends e-mails etc.
+It supports the Web Application "SOLAS-Match" and the C++ back end which sends e-mails etc.
 
 It builds an image using this command...<br />
-sudo docker build -t therosetta/trommons:v2 https://github.com/TheRosettaFoundation/dockerfile.git<br />
+sudo docker build -t therosetta/trommons:v3 https://github.com/TheRosettaFoundation/dockerfile.git<br />
 This image is available on https://hub.docker.com/
 
 The image can be used for SOLAS-Match development using the following process...
@@ -21,22 +21,44 @@ The image can be used for SOLAS-Match development using the following process...
 wget -qO- https://get.docker.com/ | sh<br />
 sudo usermod -aG docker YOUR_UNIX_USER_NAME
 
-* sudo docker run -d -p 80:80 --name solas --hostname=solas therosetta/trommons:v2
+* sudo docker run -d -p 80:80 --name solas --hostname=solas therosetta/trommons:v3
 
 * "sudo docker ps" should now show your running Docker container with a name of "solas"
 
 * "sudo docker exec -i -t solas bash" will open a bash shell inside the container
 
-* If you did not use the name "ubuntu64" for your VM, issue the following commands (replacing "ubuntu64" with your actual hostname)<br />
+* Then, if you did not use the name "ubuntu64" for your VM, issue the following commands (replacing "ubuntu64" with your actual hostname)<br />
 export TERM=dumb<br />
 crudini --set /repo/SOLAS-Match/Common/conf/conf.ini site location http://ubuntu64/<br />
+crudini --set /repo/SOLAS-Match-Backend/conf.ini site url http://ubuntu64/<br />
 mysql -h 127.0.0.1 -P 3306 SolasMatch -e "UPDATE oauth_client_endpoints SET redirect_uri='http://ubuntu64/login/' WHERE client_id='yub78q7gabcku73FK47A4AIFK7GAK7UGFAK4';"
+
+* To see the front end log: view /var/log/apache2/error.log
+
+* Keep the bash shell open (if desired to get the backend running below)
 
 * You should now be able to browse to "http://ubuntu64" in your browser and Trommons will come up and should function
 
-* There is a user called "test@example.com" with a password of "test"
+* There is a user called "test@example.com" with a password of "test", login with these.
 
-* Issue "exit" to exit the shell (if desired)
+* To get the Backend C++ Application to run you will first need to create an organisation and maybe a project on the front end UI first.<br />
+This gets the SOLAS_MATCH exchange created (for RabbitMQ).
+
+* In your bash shell, to run the Backend C++ Application issue teh following commands<br />
+cd /repo/SOLAS-Match-Backend<br />
+./run_daemon.sh &disown<br />
+ps -ef | grep Plugin
+# Note the process number so that later you can kill the Backend Process using "kill PROCESS_NUMBER"
+
+* To see the Backend C++ log: "view /etc/SOLAS-Match/output.log" or "tail --lines=50 /etc/SOLAS-Match/output.log"
+
+* (The RabbitMQ log: "view /var/log/rabbitmq/rabbit@solas64.log", Settings etc are here... https://www.rabbitmq.com/relocate.html)
+
+* To get SMTP working, install postfix...<br />
+Edit /etc/postfix/main.cf to set: smtpd_use_tls=no<br />
+Then issue: postfix reload
+
+* Issue "exit" to exit the shell (when desired)
 
 * Issue "sudo docker stop solas" to stop the container
 
