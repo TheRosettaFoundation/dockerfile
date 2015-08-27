@@ -7,7 +7,8 @@ It supports the Web Application "SOLAS-Match" and the C++ back end which sends e
 
 It builds an image using this command...<br />
 sudo docker build -t therosetta/trommons:v3 https://github.com/TheRosettaFoundation/dockerfile.git<br />
-This image is available on https://hub.docker.com/
+This image is available on https://hub.docker.com/r/therosetta/trommons/<br />
+( sudo docker pull therosetta/trommons:v3 )
 
 The image can be used for SOLAS-Match development using the following process...
 
