@@ -16,12 +16,14 @@ RUN mkdir /repo -m 777
 WORKDIR /repo
 RUN git clone https://github.com/TheRosettaFoundation/SOLAS-Match.git
 RUN git clone https://github.com/chobie/php-protocolbuffers.git
+WORKDIR /repo/SOLAS-Match
+RUN git checkout docker
 #[[DEBUG
 RUN apt-get install mysql-server mysql-client -y && sysv-rc-conf mysql on && sysv-rc-conf --list mysql
 RUN sed -e "s/bind-address            = 127.0.0.1/bind-address            = 0.0.0.0/g" -i /etc/mysql/my.cnf
 RUN service mysql start
 
-WORKDIR /repo/SOLAS-Match/
+WORKDIR /repo/SOLAS-Match
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "create database SolasMatch;"
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "CREATE USER 'tester'@'%.%.%.%' identified by 'tester';"
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "GRANT ALL ON SolasMatch.* TO 'tester'@'%.%.%.%';"
@@ -39,7 +41,6 @@ RUN service mysql start && mysql -h 127.0.0.1 -P 3306 SolasMatch -e " insert int
 
 # Add basic config #TODO update ubuntu64 to be generic
 WORKDIR /repo/SOLAS-Match
-RUN git checkout docker
 COPY conf.template.ini /repo/SOLAS-Match/Common/conf/conf.ini
 # RUN cp Common/conf/conf.template.ini Common/conf/conf.ini
 # RUN chmod a+rw /repo/SOLAS-Match/Common/conf/conf.ini
@@ -82,7 +83,7 @@ RUN chmod 777 /repo/SOLAS-Match/ui/templating/cache
 #RUN sed -e "s/bind-address            = 127.0.0.1/bind-address            = 0.0.0.0/g" -i /etc/mysql/my.cnf
 #RUN service mysql start
 
-#WORKDIR /repo/SOLAS-Match/
+#WORKDIR /repo/SOLAS-Match
 #RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "create database SolasMatch;"
 #RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "CREATE USER 'tester'@'%.%.%.%' identified by 'tester';"
 #RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "GRANT ALL ON SolasMatch.* TO 'tester'@'%.%.%.%';"
