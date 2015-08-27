@@ -18,6 +18,7 @@ RUN git clone https://github.com/TheRosettaFoundation/SOLAS-Match.git
 RUN git clone https://github.com/chobie/php-protocolbuffers.git
 WORKDIR /repo/SOLAS-Match
 RUN git checkout docker
+RUN git pull origin docker
 
 # Add basic config #TODO update ubuntu64 to be generic
 WORKDIR /repo/SOLAS-Match
