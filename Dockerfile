@@ -65,6 +65,7 @@ RUN sed -e "s/bind-address            = 127.0.0.1/bind-address            = 0.0.
 
 WORKDIR /repo
 COPY init_database.sh init_database.sh
+RUN chmod 755 init_database.sh
 RUN ./init_database.sh
 #RUN service mysql start
 #
