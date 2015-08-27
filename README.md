@@ -44,11 +44,11 @@ mysql -h 127.0.0.1 -P 3306 SolasMatch -e "UPDATE oauth_client_endpoints SET redi
 * To get the Backend C++ Application to run you will first need to create an organisation and maybe a project on the front end UI first.<br />
 This gets the SOLAS_MATCH exchange created (for RabbitMQ).
 
-* In your bash shell, to run the Backend C++ Application issue teh following commands<br />
+* In your bash shell, to run the Backend C++ Application issue the following commands<br />
 cd /repo/SOLAS-Match-Backend<br />
 ./run_daemon.sh &disown<br />
 ps -ef | grep Plugin
-# Note the process number so that later you can kill the Backend Process using "kill PROCESS_NUMBER"
+... Note the process number so that later you can kill the Backend Process using "kill PROCESS_NUMBER"
 
 * To see the Backend C++ log: "view /etc/SOLAS-Match/output.log" or "tail --lines=50 /etc/SOLAS-Match/output.log"
 
