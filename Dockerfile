@@ -70,6 +70,7 @@ RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "CREATE USER 't
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root -e "GRANT ALL ON SolasMatch.* TO 'tester'@'%.%.%.%';"
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < api/vendor/league/oauth2-server/sql/mysql.sql
 # RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema.sql
+RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema_tables0.sql
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema_tables.sql
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema_procedures.sql
 RUN service mysql start && mysql -h 127.0.0.1 -P 3306 -u root SolasMatch < db/schema_triggers.sql
