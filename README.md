@@ -85,7 +85,7 @@ sudo docker exec -i -t solas bash
 cd /repo/SOLAS-Match<br />
 git remote add remote-SOLAS-Match git@github.com:TheRosettaFoundation/SOLAS-Match_FORKED_REPOSITORY.git
 
-* Issue following command to update the code...<br />
+* Issue following commands to update the code...<br />
 cd /repo/SOLAS-Match<br />
 git pull remote-SOLAS-Match xxx
 
@@ -95,7 +95,7 @@ git pull remote-SOLAS-Match xxx
 cd /repo/SOLAS-Match-Backend<br />
 git remote add remote-SOLAS-Match-Backend https://github.com/TheRosettaFoundation/SOLAS-Match-Backend_FORKED_REPOSITORY.git
 
-* Issue following command update the code...<br />
+* Issue following commands to update the code...<br />
 cd /repo/SOLAS-Match-Backend<br />
 git pull remote-SOLAS-Match-Backend xxx
 
