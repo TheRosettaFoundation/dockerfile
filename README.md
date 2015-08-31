@@ -67,5 +67,48 @@ Then issue: postfix reload
 
 * Do not issue "docker run..." again unless you want to start a new container without your data changes (use a different name)
 
+# Additional information for bringing code changes into the container
+
+* This assumes that you have forked https://github.com/TheRosettaFoundation/SOLAS-Match.git and https://github.com/TheRosettaFoundation/SOLAS-Match-Backend.git
+
+* That you have created a new branch xxx in your forked https://github.com/TheRosettaFoundation/SOLAS-Match.git based on the "docker" branch
+
+* That you have created a new branch xxx in your forked https://github.com/TheRosettaFoundation/SOLAS-Match-Backend.git based on the "qt521" branch
+
+* In your virtual machine, if you have stopped the solas Docker container you will need to restart with this command...<br />
+sudo docker start solas
+
+* Likewise, if you have exited the bash shell inside the docker container issue the following command...<br />
+sudo docker exec -i -t solas bash
+
+* For the front end UI (once off commands), add a remote to git with the following commands...<br />
+cd /repo/SOLAS-Match<br />
+git remote add remote-SOLAS-Match git@github.com:TheRosettaFoundation/SOLAS-Match_FORKED_REPOSITORY.git
+
+* Issue following command to update the code...<br />
+cd /repo/SOLAS-Match<br />
+git pull remote-SOLAS-Match xxx
+
+* Your new changes should appear in the browser
+
+* For the Backend C++ (once off commands), add a remote to git with the following commands...<br />
+cd /repo/SOLAS-Match-Backend<br />
+git remote add remote-SOLAS-Match-Backend https://github.com/TheRosettaFoundation/SOLAS-Match-Backend_FORKED_REPOSITORY.git
+
+* Issue following command update the code...<br />
+cd /repo/SOLAS-Match-Backend<br />
+git pull remote-SOLAS-Match-Backend xxx
+
+* If running, stop the Backend with kill PROCESS_NUMBER
+
+* Compile the C++ Backend with the following commands<br />
+cd  /repo/SOLAS-Match-Backend<br />
+qmake<br />
+make
+
+* Start the Backend to see the results of your changes with these commands...<br />
+cd /repo/SOLAS-Match-Backend<br />
+./run_daemon.sh &disown<br />
+
 Alan Barrett
 alanabarrett0@gmail.com
