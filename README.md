@@ -99,9 +99,9 @@ git remote add remote-SOLAS-Match-Backend https://github.com/TheRosettaFoundatio
 cd /repo/SOLAS-Match-Backend<br />
 git pull remote-SOLAS-Match-Backend xxx
 
-* If running, stop the Backend with kill PROCESS_NUMBER
+* If running, stop the Backend with "kill PROCESS_NUMBER".
 
-* Compile the C++ Backend with the following commands<br />
+* Compile the C++ Backend with the following commands...<br />
 cd  /repo/SOLAS-Match-Backend<br />
 qmake<br />
 make
