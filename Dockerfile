@@ -7,6 +7,7 @@ ENV TERM dumb
 RUN apt-get update && apt-get install git wget apache2 php5 libapache2-mod-php5 curl crudini nano -y
 RUN a2enmod rewrite
 RUN apt-get install libapache2-mod-xsendfile sudo subversion php5-dev php-apc php5-mysql php5-mcrypt php5-curl php5-cli re2c -y
+RUN apt-get install php5-gd -y
 RUN apt-get install sysv-rc-conf -y && sysv-rc-conf apache2 on && sysv-rc-conf --list apache2
 COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
 COPY apache2.conf /etc/apache2/apache2.conf
